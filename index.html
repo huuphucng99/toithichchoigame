@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroPulse Arcade | Snake & Tetris</title>
+    <!-- CSS stylesheet link -->
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for neon-style icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Retro animated grid background -->
+    <div class="bg-grid"></div>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo" id="headerLogo">
+            <i class="fa-solid fa-gamepad"></i> RETROPULSE
+        </div>
+        <div class="header-controls">
+            <button class="btn-home" id="navHomeBtn" style="display: none;">
+                <i class="fa-solid fa-house"></i> Home
+            </button>
+            <button class="icon-btn" id="navLeaderboardBtn" title="Leaderboard">
+                <i class="fa-solid fa-trophy"></i>
+            </button>
+            <button class="icon-btn" id="soundToggleBtn" title="Mute/Unmute Sounds">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main>
+        <!-- SCREEN 1: Game Portal Dashboard -->
+        <section id="screenHome" class="screen active">
+            <div class="dashboard-title">
+                <h1>RETROPULSE ARCADE</h1>
+                <p>Immerse yourself in neon retro-modern classics</p>
+            </div>
+
+            <div class="game-grid">
+                <!-- Snake Card -->
+                <div class="game-card snake-card" id="cardSnake">
+                    <div class="card-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <h2>NEON SNAKE</h2>
+                    <p>Maneuver your cyber-serpent to consume code cores, grow longer, and dodge your own trailing code thread. Custom game modes included.</p>
+                    <div class="card-stats">
+                        <div class="stat-item">
+                            <span>High Score</span>
+                            <strong id="cardSnakeHighScore">0</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Best Level</span>
+                            <strong id="cardSnakeBestLevel">1</strong>
+                        </div>
+                    </div>
+                    <button class="play-btn">PLAY NOW</button>
+                </div>
+
+                <!-- Tetris Card -->
+                <div class="game-card tetris-card" id="cardTetris">
+                    <div class="card-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <h2>MATRIX TETRIS</h2>
+                    <p>Rotate, shift, and drop falling neon tetrominoes to construct and clear horizontal lines. Features hold queues and glowing line blast particles.</p>
+                    <div class="card-stats">
+                        <div class="stat-item">
+                            <span>High Score</span>
+                            <strong id="cardTetrisHighScore">0</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Lines Clear</span>
+                            <strong id="cardTetrisBestLines">0</strong>
+                        </div>
+                    </div>
+                    <button class="play-btn">PLAY NOW</button>
+                </div>
+            </div>
+
+            <!-- Global Quick Stats bar -->
+            <div class="quick-stats-bar">
+                <div class="quick-stat">
+                    <i class="fa-solid fa-bolt"></i>
+                    <div>
+                        <span>System Status</span>
+                        <strong>ONLINE</strong>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <div>
+                        <span>Input Mode</span>
+                        <strong>KEYS / TOUCH</strong>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <i class="fa-solid fa-database"></i>
+                    <div>
+                        <span>Data Storage</span>
+                        <strong>LOCAL PERSISTENT</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: Snake Game View -->
+        <section id="screenSnake" class="screen snake-theme">
+            <div class="game-container">
+                <!-- Canvas Area -->
+                <div class="canvas-wrapper">
+                    <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                    
+                    <!-- Overlay Screen for Pause/Game Over -->
+                    <div class="canvas-overlay" id="snakeOverlay">
+                        <h3 id="snakeOverlayTitle">PAUSED</h3>
+                        <p id="snakeOverlayScore">Score: 0</p>
+                        <button class="overlay-btn" id="snakeOverlayBtn">START GAME</button>
+                    </div>
+                </div>
+
+                <!-- Sidebar Information Panel -->
+                <div class="sidebar-panel">
+                    <div class="panel-card">
+                        <h2 class="panel-title">NEON SNAKE <i class="fa-solid fa-staff-snake"></i></h2>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span>Score</span>
+                                <strong id="snakeScore">0</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>High Score</span>
+                                <strong id="snakeHighScore">0</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>Speed Level</span>
+                                <strong id="snakeLevel">1</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>Grid Size</span>
+                                <strong>20x20</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Mode Select Card -->
+                    <div class="panel-card">
+                        <div class="panel-title">GAME MODE</div>
+                        <div class="mode-toggles">
+                            <button class="mode-btn active" id="snakeModeClassic">CLASSIC</button>
+                            <button class="mode-btn" id="snakeModeWrap">WRAP-AROUND</button>
+                        </div>
+                    </div>
+
+                    <!-- Controls & Game actions -->
+                    <div class="panel-card">
+                        <div class="panel-title">ACTIONS</div>
+                        <div class="action-buttons">
+                            <button class="game-btn primary-btn" id="snakePlayPauseBtn">
+                                <i class="fa-solid fa-play"></i> <span id="snakePlayText">START</span>
+                            </button>
+                            <button class="game-btn" id="snakeResetBtn">
+                                <i class="fa-solid fa-rotate-left"></i> RESET
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Controls cheat sheet -->
+                    <div class="panel-card">
+                        <div class="panel-title">KEYBOARD CHEAT SHEET</div>
+                        <div class="controls-list">
+                            <div class="control-item">
+                                <span>Move Up</span>
+                                <span class="key-badge">W</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-up"></i></span>
+                            </div>
+                            <div class="control-item">
+                                <span>Move Down</span>
+                                <span class="key-badge">S</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-down"></i></span>
+                            </div>
+                            <div class="control-item">
+                                <span>Move Left</span>
+                                <span class="key-badge">A</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-left"></i></span>
+                            </div>
+                            <div class="control-item">
+                                <span>Move Right</span>
+                                <span class="key-badge">D</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-right"></i></span>
+                            </div>
+                            <div class="control-item">
+                                <span>Pause Game</span>
+                                <span class="key-badge">P</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Virtual gamepad for touch/mouse -->
+            <div class="virtual-gamepad">
+                <div class="d-pad">
+                    <button class="pad-btn up" id="snakePadUp"><i class="fa-solid fa-chevron-up"></i></button>
+                    <button class="pad-btn left" id="snakePadLeft"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="pad-btn center" id="snakePadCenter">PAUSE</button>
+                    <button class="pad-btn right" id="snakePadRight"><i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="pad-btn down" id="snakePadDown"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: Tetris Game View -->
+        <section id="screenTetris" class="screen tetris-theme">
+            <div class="game-container">
+                <!-- Canvas Area -->
+                <div class="canvas-wrapper">
+                    <!-- Standard Tetris Grid is 10x20. With 30px blocks, 300 width, 600 height -->
+                    <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+                    
+                    <!-- Overlay Screen for Pause/Game Over -->
+                    <div class="canvas-overlay" id="tetrisOverlay">
+                        <h3 id="tetrisOverlayTitle">PAUSED</h3>
+                        <p id="tetrisOverlayScore">Score: 0</p>
+                        <button class="overlay-btn" id="tetrisOverlayBtn">START GAME</button>
+                    </div>
+                </div>
+
+                <!-- Sidebar Information Panel -->
+                <div class="sidebar-panel">
+                    <!-- Hold & Next Previews -->
+                    <div class="tetris-previews">
+                        <div class="preview-box">
+                            <span>HOLD</span>
+                            <div class="preview-canvas-container">
+                                <canvas class="preview-canvas" id="canvasHold" width="80" height="80"></canvas>
+                            </div>
+                        </div>
+                        <div class="preview-box">
+                            <span>NEXT</span>
+                            <div class="preview-canvas-container">
+                                <canvas class="preview-canvas" id="canvasNext" width="80" height="80"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Panel -->
+                    <div class="panel-card">
+                        <h2 class="panel-title">MATRIX TETRIS <i class="fa-solid fa-cubes"></i></h2>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span>Score</span>
+                                <strong id="tetrisScore">0</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>High Score</span>
+                                <strong id="tetrisHighScore">0</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>Level</span>
+                                <strong id="tetrisLevel">1</strong>
+                            </div>
+                            <div class="stat-box">
+                                <span>Lines</span>
+                                <strong id="tetrisLines">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game actions -->
+                    <div class="panel-card">
+                        <div class="panel-title">ACTIONS</div>
+                        <div class="action-buttons">
+                            <button class="game-btn primary-btn" id="tetrisPlayPauseBtn">
+                                <i class="fa-solid fa-play"></i> <span id="tetrisPlayText">START</span>
+                            </button>
+                            <button class="game-btn" id="tetrisResetBtn">
+                                <i class="fa-solid fa-rotate-left"></i> RESET
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Cheat Sheet -->
+                    <div class="panel-card">
+                        <div class="panel-title">KEYBOARD CHEAT SHEET</div>
+                        <div class="controls-list">
+                            <div class="control-item">
+                                <span>Move Left / Right</span>
+                                <div>
+                                    <span class="key-badge"><i class="fa-solid fa-arrow-left"></i></span>
+                                    <span class="key-badge"><i class="fa-solid fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="control-item">
+                                <span>Soft Drop (Speed)</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-down"></i></span>
+                            </div>
+                            <div class="control-item">
+                                <span>Hard Drop (Instant)</span>
+                                <span class="key-badge">Space</span>
+                            </div>
+                            <div class="control-item">
+                                <span>Rotate Clockwise</span>
+                                <span class="key-badge"><i class="fa-solid fa-arrow-up"></i></span>
+                                <span class="key-badge">X</span>
+                            </div>
+                            <div class="control-item">
+                                <span>Rotate Counter</span>
+                                <span class="key-badge">Z</span>
+                            </div>
+                            <div class="control-item">
+                                <span>Hold / Swap Piece</span>
+                                <span class="key-badge">C</span>
+                                <span class="key-badge">Shift</span>
+                            </div>
+                            <div class="control-item">
+                                <span>Pause Game</span>
+                                <span class="key-badge">P</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Virtual controller pads for touch/mouse -->
+            <div class="virtual-gamepad">
+                <div class="d-pad">
+                    <button class="pad-btn up" id="tetrisPadRotate" title="Rotate Piece"><i class="fa-solid fa-rotate"></i></button>
+                    <button class="pad-btn left" id="tetrisPadLeft" title="Move Left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="pad-btn center" id="tetrisPadHold" title="Hold Piece">HOLD</button>
+                    <button class="pad-btn right" id="tetrisPadRight" title="Move Right"><i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="pad-btn down" id="tetrisPadSoft" title="Soft Drop"><i class="fa-solid fa-arrow-down"></i></button>
+                </div>
+                <div class="tetris-action-pad">
+                    <button class="action-pad-btn" id="tetrisPadHard"><i class="fa-solid fa-angles-down"></i> HARD DROP</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: High Scores Leaderboard View -->
+        <section id="screenLeaderboard" class="screen">
+            <div class="leaderboard-container">
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" id="tabSnakeLeaderboard">NEON SNAKE</button>
+                    <button class="tab-btn" id="tabTetrisLeaderboard">MATRIX TETRIS</button>
+                </div>
+
+                <table class="leaderboard-table" id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Rank</th>
+                            <th style="width: 45%;">Date</th>
+                            <th style="width: 20%; text-align: center;" id="leaderboardMetricHeader">Level</th>
+                            <th style="width: 20%; text-align: right;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Filled dynamically by main.js -->
+                    </tbody>
+                </table>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem;">
+                    <button class="game-btn" id="clearLeaderboardBtn" style="border-color: var(--pink); color: var(--pink);">
+                        <i class="fa-solid fa-trash-can"></i> CLEAR RECORDS
+                    </button>
+                    <button class="game-btn primary-btn" id="backToHomeBtn">
+                        <i class="fa-solid fa-house"></i> GO BACK
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Custom alert container for bleep-based messages -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 RetroPulse Arcade. Built with vanilla HTML, CSS, and JS.</p>
+        <p>Press <span class="key-badge" style="font-size: 0.7rem; border-bottom: 2px solid rgba(255,255,255,0.25);">Esc</span> at any time to return to dashboard.</p>
+    </footer>
+
+    <!-- Game scripts load -->
+    <script src="main.js"></script>
+    <script src="snake.js"></script>
+    <script src="tetris.js"></script>
+</body>
+</html>
